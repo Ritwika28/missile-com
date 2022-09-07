@@ -1,0 +1,89 @@
+<html>
+    <head>
+        <style>
+            *{padding:0;margin:0;}
+            canvas{background: #eee;display: block;margin:0 auto;}
+        </style>
+    </head>
+    <body>
+        <canvas id="missileCanvas" width="800" height="600"></canvas>
+        <script>
+            let canvas = document.getElementById("missileCanvas");
+            let ctx = canvas.getContext("2d");
+            document.addEventListener("click",clickHandler,false);
+            document.addEventListener("mousemove",getPosition,false);
+            let missiles = [];
+            let mouseX = 0;
+            let mouseY = 0;
+            let fireToX = 0;
+            let fireToY = 0;
+            let isFiring = false;
+            let fps = 60;
+            function getPosition(e)
+            {
+                mouseX = e.x - canvas.offsetLeft;
+                mouseY = e.y - canvas.offsetTop;
+            }
+
+            function clickHandler(e)
+            {
+                    fireToX = e.x - canvas.offsetLeft;
+                    fireToY = e.y - canvas.offsetTop;
+                    isFiring = true;
+            }
+            function MissileBody(initX, initY, targetX, targetY)
+            {
+                this.initX = initX;
+                this.initY = initY;
+                this.currX = initX;
+                this.currY = initY;
+                this.tX = targetX;
+                this.tY = targetY;
+                let adjustedX = initX - targetX;
+                let adjustedY = initY - targetY;
+                this.rot = -1 * Math.atan2(adjustedX, adjustedY) * 180 / Math.PI + 180;
+            }
+            function missile(){
+                ctx.setLineDash([5, 3]);
+                for(let i = 0; i < missiles.length; i++)
+                {
+                    ctx.beginPath();
+                    ctx.strokeStyle = "red";
+                    ctx.moveTo(missiles[i].currX, missiles[i].currY);
+                    ctx.lineTo(missiles[i].initX, missiles[i].initY);
+                    ctx.closePath();
+                    ctx.stroke();
+                    missiles[i].currX += (Math.cos((missiles[i].rot + 90) * Math.PI/180)) * 2;
+                    missiles[i].currY += (Math.sin((missiles[i].rot + 90) * Math.PI/180)) * 2;
+                }
+            }
+            function gameBackground(){
+                ctx.fillStyle = "rgb(20,20,20)";
+                ctx.fillRect(0,0, 800, 600);
+                ctx.beginPath();
+                ctx.fill();
+                ctx.closePath();
+            }
+            
+            
+            function draw()
+            {
+                setTimeout(function()
+                {
+                    let randomGen = Math.floor(Math.random() * 100);
+                    if(randomGen == 0)
+                    {
+                        let iX = Math.floor(Math.random() * 800);
+                        let destX = Math.floor(Math.random() * 800);
+                        missiles.push(new MissileBody(iX, 0, destX, 600));
+                    }
+                    requestAnimationFrame(draw);
+                    gameBackground();
+                    missile();
+                }, 1000/fps);
+            }
+
+            draw();
+        </script>
+    </body>
+</html>
